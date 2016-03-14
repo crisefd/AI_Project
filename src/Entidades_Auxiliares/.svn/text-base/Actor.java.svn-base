@@ -1,0 +1,23 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Clases;
+
+import java.awt.Point;
+
+/**
+ *
+ * @author danielha
+ */
+public class Actor extends Point{
+    
+    public int peso;
+    
+    public Actor(int x, int y, int peso){
+        
+      super(x, y);
+      this.peso=peso;
+        
+    }
+}

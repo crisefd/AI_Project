@@ -1,0 +1,428 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Clases;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.border.BevelBorder;
+
+/**
+ *
+ * @author User
+ */
+public class Ventana extends JFrame implements MouseListener, ActionListener{
+    
+    private Container contenedor;
+    private final int ROBOT=-1, OBJ1=-2, OBJ2=-3, LUG1=-4, LUG2=-5, LIBRE=0; 
+    private Icon iconoActual;
+    private JPanel panelSuperior, panelInferior, panelCentral,panelCampo,panelCuadricula;
+    private JScrollPane deslizador;
+    private JButton botonIniciar, botonOb1, botonOb2, botonL1, botonL2, botonPenalidad, botonRobot, botonPresionado;
+    private int dim, penalidad,pesoObj1,pesoObj2, clicks_p;
+    private JLabel[][] grilla;
+    private DialogoInicio di;
+    private Buscador app;
+    private ArrayList<Point> ruta;
+   // private AdmArchivo adm;
+    private JComboBox listaAlg;
+    
+    public Ventana(){
+        super("Proyecto IA");
+        try{
+           JFrame.setDefaultLookAndFeelDecorated(true);
+           UIManager.setLookAndFeel( new com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel() );
+        }catch(Exception ex){
+            
+        }
+         di= new DialogoInicio(this,true);
+        
+    }
+    
+    public void initComponents(int dim, int pesoObj1, int pesoObj2, int penalidad){
+        this.dim=dim;
+        this.pesoObj1=pesoObj1;
+        this.pesoObj2=pesoObj2;
+        this.penalidad=penalidad;
+        setSize(1300,720);
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+         
+         
+         
+         contenedor= getContentPane();
+         contenedor.setLayout(new BorderLayout());
+         panelSuperior= new JPanel();
+         panelSuperior.setLayout(new GridLayout(1,5,2,2));
+         panelSuperior.setBorder(new BevelBorder(BevelBorder.RAISED));
+         botonOb1= new JButton(new ImageIcon("src/Imagenes/book1_.png"));
+         botonOb1.addActionListener(this);
+         botonOb1.setBorderPainted(false);
+         botonOb1.setContentAreaFilled(false);
+         botonOb2=new JButton(new ImageIcon("src/Imagenes/book2_.png"));
+         botonOb2.setBorderPainted(false);
+         botonOb2.setContentAreaFilled(false);
+         botonOb2.addActionListener(this);
+         botonL1 = new JButton(new ImageIcon("src/Imagenes/box1_.png"));
+         botonL1.setBorderPainted(false);
+         botonL1.setContentAreaFilled(false);
+         botonL1.addActionListener(this);
+         botonL2 =new JButton(new ImageIcon("src/Imagenes/box2_.png"));
+         botonL2.setBorderPainted(false);
+         botonL2.setContentAreaFilled(false);
+         botonL2.addActionListener(this);
+         botonPenalidad= new JButton(new ImageIcon("src/Imagenes/penalidad.jpg"));
+         botonPenalidad.setBorderPainted(false);
+         botonPenalidad.setContentAreaFilled(false);
+         botonPenalidad.addActionListener(this);
+         panelSuperior.add(botonOb1);
+         panelSuperior.add(botonOb2);
+         panelSuperior.add(botonL1);
+         panelSuperior.add(botonL2);
+         panelSuperior.add(botonPenalidad);
+         botonRobot= new JButton(new ImageIcon("src/Imagenes/robot.png"));
+         botonRobot.setBorderPainted(true);
+         botonRobot.setContentAreaFilled(false);
+         botonRobot.addActionListener(this);
+         panelSuperior.add(botonRobot);
+         panelCentral= new JPanel();
+         
+         panelCampo = new JPanel();
+         panelCuadricula= new JPanel();
+         panelCuadricula.setLayout(new GridLayout(dim,dim,0,0));
+       
+         panelCentral.setLayout(new BorderLayout());
+         
+         
+         grilla= new JLabel[dim][dim];
+         
+         for(int i=0;i<dim;i++){
+             for(int j=0;j<dim;j++){
+                 grilla[i][j]= new JLabel();
+                 
+                 grilla[i][j].setOpaque(true);
+                 grilla[i][j].setBorder(new BevelBorder(BevelBorder.RAISED));
+                 grilla[i][j].setHorizontalAlignment(Math.round(grilla[i][j].getWidth()/2));
+                 grilla[i][j].addMouseListener(this);
+                 panelCuadricula.add(grilla[i][j]);
+                 
+                 
+             }
+         }
+         //grilla[0][0].setIcon(new ImageIcon("src\\Imagenes\\robot_.png"));
+        
+        
+         
+         panelCentral.add(new JLabel("                                                                           "), BorderLayout.EAST);
+         panelCentral.add(panelCuadricula, BorderLayout.CENTER);
+         panelCentral.add(new JLabel("                                                                           "), BorderLayout.WEST);
+         panelInferior= new JPanel();
+         panelInferior.setLayout(new FlowLayout());
+         botonIniciar= new JButton("  Iniciar  ");
+         botonIniciar.addActionListener(this);
+         panelInferior.add(botonIniciar);
+         listaAlg= new JComboBox(new Object[]{"Algoritmo 1","Algoritmo 2", "Algoritmo 3"});
+         panelInferior.add(listaAlg);
+         contenedor.add(panelSuperior, BorderLayout.NORTH);
+         contenedor.add(panelCentral,BorderLayout.CENTER);
+         contenedor.add(panelInferior,BorderLayout.SOUTH);
+         
+          setIconImage(new ImageIcon("src/Imagenes/icon_.png").getImage());
+          
+          validate();
+          
+          
+          
+         setVisible(true);
+        // di= new DialogoInicio(this,true);
+         
+         
+    }
+ 
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        JLabel celda = (JLabel)e.getSource();
+        
+        if(celda.getIcon()==null){
+                for(int i=0;i<dim;i++){
+                    for(int j=0;j<dim;j++){
+                        if(celda.equals(grilla[i][j])){
+
+                            grilla[i][j].setIcon(iconoActual);
+                            iconoActual=null;
+
+                            if(botonPresionado.equals(botonPenalidad)&&(clicks_p<(dim*dim -5))){
+                                //botonPenalidad.setEnabled(true);
+                                clicks_p++;
+                            }else{
+                                if(botonPresionado.equals(botonRobot)){
+                                    botonRobot.setEnabled(false);
+                                }else{
+                                    if(botonPresionado.equals(botonOb1)){
+                                       botonOb1.setEnabled(false);
+                                      }else{
+                                        if(botonPresionado.equals(botonOb2)){
+                                              botonOb2.setEnabled(false);
+                                      }else{
+                                            if(botonPresionado.equals(botonL1)){
+                                                    botonL1.setEnabled(false);
+                                            }else{
+                                                if(botonPresionado.equals(botonL2)){
+                                                    botonL2.setEnabled(false);
+                                              }else{
+                                                    if(botonPresionado.equals(botonPenalidad)){
+                                                         clicks_p++;
+                                                  }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            return;
+                        }
+
+                    }
+                }
+        }
+
+       
+       
+      
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+         
+       
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+       
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+       
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+       
+         botonPresionado= (JButton)e.getSource();
+        
+        if(botonPresionado.equals(botonRobot)){
+            
+            iconoActual= botonRobot.getIcon();
+            //botonRobot.setEnabled(false);
+            
+        }else{
+            if(botonPresionado.equals(botonOb1)){
+              iconoActual= botonOb1.getIcon();   
+             // botonOb1.setEnabled(false);
+            }else{
+                if(botonPresionado.equals(botonOb2)){
+                     iconoActual= botonOb2.getIcon();   
+                    // botonOb2.setEnabled(false);
+                }else{
+                    if(botonPresionado.equals(botonL1)){
+                        iconoActual= botonL1.getIcon();   
+                       // botonL1.setEnabled(false);   
+                    }else{
+                        if(botonPresionado.equals(botonL2)){
+                             iconoActual= botonL2.getIcon();   
+                           //  botonL2.setEnabled(false);  
+                        }else{
+                            if(botonPresionado.equals(botonPenalidad)){
+                                 iconoActual= botonPenalidad.getIcon();
+                                 
+                                // botonPenalidad.setEnabled(false);  
+                                
+                            }else{
+                                if(botonPresionado.equals(botonIniciar)){
+                                    int matriz[][]= new int[dim][dim];
+                                    for(int i=0;i<dim;i++){
+                                        for(int j=0;j<dim;j++){
+                                            Icon ic = grilla[i][j].getIcon();
+                                            
+                                            if(ic==null){
+                                                matriz[i][j]=LIBRE;
+                                                
+                                            }else{
+                                                if(ic.equals(botonRobot.getIcon())){
+                                                    matriz[i][j]=ROBOT;
+                                                }else{
+                                                    if(ic.equals(botonOb1.getIcon())){
+                                                        matriz[i][j]=OBJ1;
+                                                    }else{
+                                                            if(ic.equals(botonOb2.getIcon())){
+                                                                matriz[i][j]=OBJ2;
+                                                            }else{
+                                                                if(ic.equals(botonL1.getIcon())){
+                                                                    matriz[i][j]=LUG1;
+                                                                }else{
+                                                                    if(ic.equals(botonL2.getIcon())){
+                                                                        matriz[i][j]=LUG2;
+                                                                        
+                                                                    }else{
+                                                                        if(ic.equals(botonPenalidad.getIcon())){
+                                                                            matriz[i][j]=penalidad;
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                     }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    app= new Buscador(new AdmArchivo(dim,pesoObj1,pesoObj2,matriz, penalidad));
+                                    ruta=  app.buscar();
+                                    System.out.println("exito");
+                                    new mostradorRuta().start();
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
+        
+        
+    }
+    private class mostradorRuta extends Thread{
+       Icon icono= botonRobot.getIcon();
+       int i=0;
+        @Override
+       public void run(){
+           
+            while(i<ruta.size()){
+                Point p= ruta.get(i);
+
+                grilla[p.x][p.y].setIcon(icono);
+               try {
+                   sleep(250);
+               } catch (InterruptedException ex) {
+                   Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+               }
+               grilla[p.x][p.y].setIcon(null);
+
+                i++;
+       }        
+           
+       }
+      
+    }
+    
+    private class DialogoInicio extends JDialog implements ActionListener{
+        
+        private JPanel panDimension, panPeso1, panPeso2, panPenalidad , panBoton;
+        private JLabel etiquetaDim,etiquetaPeso1, etiquetaPeso2,etiquetaPenalidad;
+        private JComboBox listaDim;
+        private JTextField campoPeso1, campoPeso2, campoPena;
+        private JButton boton;
+        private JFrame dueño;
+        
+        public DialogoInicio(JFrame dueño,boolean modal){
+            super(dueño,modal);
+            this.dueño=dueño;
+            
+            getContentPane().setLayout(new GridLayout(5,1));
+            getContentPane().setBackground(Color.black);
+            panDimension= new JPanel(new FlowLayout());
+            panDimension.setBackground(Color.black);
+            panPeso1= new JPanel(new FlowLayout());
+            panPeso1.setBackground(Color.black);
+            panPeso2= new JPanel(new FlowLayout());
+            panPeso2.setBackground(Color.black);
+            panPenalidad= new JPanel(new FlowLayout());
+            panPenalidad.setBackground(Color.black);
+            etiquetaDim= new JLabel("Dimension del campo:                ");
+            etiquetaDim.setForeground(Color.white);
+            etiquetaPeso1=new JLabel("Escriba el peso del objeto 1:     ");
+             etiquetaPeso1.setForeground(Color.white);
+            etiquetaPeso2=new JLabel("Escriba el peso del objeto 2:     ");
+             etiquetaPeso2.setForeground(Color.white);
+       etiquetaPenalidad= new JLabel("Escriba el valor de la penalidad:");
+             etiquetaPenalidad.setForeground(Color.white);
+            listaDim= new JComboBox(new Object[] {5,6,7,8,9,10});
+            campoPeso1= new JTextField(2);
+            campoPeso2= new JTextField(2);
+            campoPena= new JTextField(2);
+            panDimension.add(etiquetaDim);
+            panDimension.add(listaDim);
+            panPeso1.add(etiquetaPeso1);
+            panPeso1.add(campoPeso1);
+            panPeso2.add(etiquetaPeso2);
+            panPeso2.add(campoPeso2);
+            panPenalidad.add(etiquetaPenalidad);
+            panPenalidad.add(campoPena);
+            boton= new JButton("Aceptar");
+            boton.addActionListener(this);
+            panBoton = new JPanel();
+            panBoton.setBackground(Color.black);
+            panBoton.add(boton);
+            getContentPane().add(panDimension);
+            getContentPane().add(panPeso1);
+            getContentPane().add(panPeso2);
+            getContentPane().add(panPenalidad);
+            getContentPane().add(panBoton);
+            validate();
+            pack();
+            setResizable(false);
+            setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+            setVisible(true);
+            
+            
+            
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try{
+                   int dim=(Integer)listaDim.getSelectedItem();
+                   int  pesoObj1=Integer.parseInt(campoPeso1.getText());
+                   int  pesoObj2=Integer.parseInt(campoPeso2.getText());
+                   int   penalidad=Integer.parseInt(campoPena.getText());
+                       this.setVisible(false);
+                       ((Ventana)dueño).initComponents(dim,pesoObj1,pesoObj2,penalidad);
+                       
+            }catch(Exception ex){
+                
+                campoPeso1.setText("");
+                campoPeso2.setText("");
+                campoPena.setText("");
+               
+            }
+            
+            
+           
+        }
+        
+    }
+    
+    public static void main(String[]args){
+        new Ventana();
+        
+    }
+    
+    
+}

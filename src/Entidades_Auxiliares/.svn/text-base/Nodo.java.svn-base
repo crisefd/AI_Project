@@ -1,0 +1,122 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Clases;
+
+import java.awt.Point;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author User
+ */
+public class Nodo {
+    
+    private Point estado;
+    private Nodo padre;
+    private int profundidad, costo;
+    private ArrayList<Nodo> hijos; 
+    private boolean espandido;
+   // private static boolean cargandoObj1=false, cargandoObj2=false;
+    
+    
+    public Nodo (Point estado, Nodo padre, int costo, ArrayList hijos){
+        this.estado=estado;
+        this.padre=padre;
+       // this.profundidad=profundidad;
+        this.costo=costo;
+        this.hijos= hijos;
+      
+       
+    }
+    
+    
+    
+    public Nodo (Point estado, Nodo padre,  int costo){
+        this.estado=estado;
+        this.padre=padre;
+        this.costo=costo;
+        //espandido=false;
+        
+        if(padre==null){
+            this.profundidad=0;
+            espandido=true;
+            
+        }else{
+            this.profundidad= padre.obtenerProfundidad()+1;
+            espandido=false;
+        }
+       
+        
+       
+    }
+    
+   
+    
+    public int obtenerProfundidad(){
+        return profundidad;
+    }
+    
+    public int obtenerCosto(){
+        return costo;
+    }
+    
+    public boolean esHoja(){
+        
+        if (hijos.isEmpty()){
+             return true;
+        }else{
+            return false;
+        }
+        
+    }
+    public boolean estaExpandido(){
+        
+        return espandido;
+    }
+    
+    public void expander(boolean b){
+        
+        espandido=b;
+        
+    }
+    public Nodo obtenerPadre(){
+        return padre;
+    }
+    
+    public Point obtenerEstado(){
+        return estado;
+    }
+    
+    
+    public boolean esPadre(Nodo n){
+        
+        return (padre.equals(n));
+        
+    }
+    
+    public Nodo remover_primer_hijo(){
+        
+        return hijos.remove(0);
+    }
+    
+    public void agregarHijo(Nodo hijo){
+        
+        hijos.add(hijo);
+        
+    }
+    
+    public void agregarHijo(ArrayList<Nodo> hijos){
+       
+        for(int i=0;i<hijos.size();i++){
+            
+            this.hijos.add(hijos.get(i));
+            
+        }
+        
+        
+      
+    }
+    
+}

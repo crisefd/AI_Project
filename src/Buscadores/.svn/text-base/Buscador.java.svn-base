@@ -1,0 +1,1001 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Clases;
+
+import java.awt.Point;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author User
+ */
+public class Buscador {
+    
+   private Buscador.BuscadorAmplitud ba=new Buscador.BuscadorAmplitud();
+   private int [][]cuadricula;
+   private int indice;
+   private final int[][]cuadriculaAux;
+   private boolean cargandoObj1=false, cargandoObj2=false;
+   private String [][]opciones={{"o1","l1","o2","l2"},
+                               {"o2","l2","o1","l1"},
+                               {"o1","o2","l1","l2"},
+                               {"o1","o2","l2","l1"},
+                               {"o2","o1","l2","l1"},
+                               {"o2", "o1","l1","l2"}};
+   private int  opcion=0,paso=0,pesoObj1,pesoObj2,costoPaso1=0,costoPaso2=0,costoPaso3=0,costoPaso4, costoOp1=0,costoOp2=0,costoOp3=0,costoOp4=0,costoOp5=0,costoOp6=0;
+   private ArrayList<Nodo> arbol= new ArrayList<Nodo>();
+   private ArrayList<Point> coorVisitadas= new ArrayList<Point>();
+   private ArrayList<Point> rutaOp1= new ArrayList<Point>(),rutaOp2= new ArrayList<Point>(), rutaOp3= new ArrayList<Point>(),rutaOp4= new ArrayList<Point>(),rutaOp5= new ArrayList<Point>(),rutaOp6= new ArrayList<Point>(), rutaDef;
+   private final int ROBOT=-1, OBJ1=-2, OBJ2=-3, LUG1=-4, LUG2=-5, LIBRE=0, PENALIDAD; 
+   private Actor robot, objeto1, objeto2, lugar1, lugar2;
+    
+   public ArrayList<Point> buscar(){
+       return ba.buscar();
+   }
+   
+    public Buscador(AdmArchivo adm){
+       
+        cuadricula= adm.obtenerCuadricula();
+        cuadriculaAux= new int[cuadricula.length][cuadricula.length];
+       for(int i=0;i<cuadricula.length;i++){
+            for(int j=0;j<cuadricula.length;j++){
+                cuadriculaAux[i][j]=cuadricula[i][j];
+                
+            }
+        }
+        pesoObj1= adm.obtenerPesoObj1();
+        pesoObj2= adm.obtenerpesoObj2();
+        PENALIDAD= adm.obtenerPenalidad();
+        
+        for(int i=0;i<cuadricula.length;i++){
+            for(int j=0;j<cuadricula.length;j++){
+                
+                    int n= cuadricula[i][j];
+                   // System.out.print(n+" ");
+                    switch(n){
+                        
+                        case ROBOT:robot= new Actor(i,j,0);break;
+                        case OBJ1:objeto1= new Actor(i,j,pesoObj1);break;
+                        case OBJ2:objeto2= new Actor(i,j,pesoObj2);break;
+                        case LUG1:lugar1= new Actor(i,j,0);break;
+                        case LUG2:lugar2= new Actor(i,j,0);break;
+                        
+                        
+                    }
+                    
+                //System.out.println("\n");
+               
+            }
+        }
+        
+        
+        
+    }
+    
+    private void restablecerCampo(){
+        
+        
+      // cuadricula=cuadriculaAux;
+        
+        for(int i=0;i<cuadricula.length;i++){
+            for(int j=0;j<cuadricula.length;j++){
+                cuadricula[i][j]=cuadriculaAux[i][j];
+                
+            }
+        }
+      
+      
+        
+        for(int i=0;i<cuadricula.length;i++){
+            for(int j=0;j<cuadricula.length;j++){
+                
+                    int n= cuadricula[i][j];
+                   // System.out.print(n+" ");
+                    switch(n){
+                        
+                        case ROBOT:robot= new Actor(i,j,0);break;
+                        case OBJ1:objeto1= new Actor(i,j,pesoObj1);break;
+                        case OBJ2:objeto2= new Actor(i,j,pesoObj2);break;
+                        case LUG1:lugar1= new Actor(i,j,0);break;
+                        case LUG2:lugar2= new Actor(i,j,0);break;
+                        
+                        
+                    }
+                    
+                //System.out.println("\n");
+               
+            }
+        }
+        
+    }
+    
+    private boolean esValida(int fil, int col){
+        
+        try{
+              int a= cuadricula[fil][col];
+              
+             
+            
+        }catch(ArrayIndexOutOfBoundsException ex){
+            
+                return false;
+            
+        }
+        
+        return true;
+    }
+   /* private int calcularDistancia_x(Actor act){
+        
+        return Math.abs(robot.x - act.x);
+            
+    }
+    
+    
+    private int calcularDistancia_y(Actor act){
+        
+        return Math.abs(robot.y -act.y);
+    }*/
+    
+    
+    private String determinarObjetivo(){
+       String ac=null; 
+        
+       switch(opcion){
+           case 0:
+                    switch(paso){
+                        
+                        case 0:ac = "o1";break;
+                        case 1:ac= "l1";break;
+                        case 2:ac = "o2";break;
+                        case 3:ac = "l2";break;
+                        
+                    }
+                   
+               break;
+           case 1:
+                    switch(paso){
+                        case 0:ac = "o2";break;
+                        case 1:ac= "l2";break;
+                        case 2:ac = "o1";break;
+                        case 3:ac = "l1";break;
+                        
+                    }
+                    
+                    break;
+           case 2:
+                   switch(paso){
+                       
+                        case 0:ac = "o1";break;
+                        case 1:ac= "o2";break;
+                        case 2:ac = "l1";break;
+                        case 3:ac = "l2";break;
+                        
+                       
+                   }
+               
+                        break;
+           case 3:
+                   switch(paso){
+                       
+                        case 0:ac = "o1";break;
+                        case 1:ac= "o2";break;
+                        case 2:ac = "l2";break;
+                        case 3:ac = "l1";break;
+                       
+                   }
+                  
+               break;
+           case 4:
+                     switch(paso){
+                       
+                        case 0:ac = "o2";break;
+                        case 1:ac= "o1";break;
+                        case 2:ac = "l2";break;
+                        case 3:ac = "l1";break;
+                       
+                   }
+               
+               break;
+           case 5:
+                     switch(paso){
+                       
+                        case 0:ac = "o2";break;
+                        case 1:ac= "o1";break;
+                        case 2:ac = "l1";break;
+                        case 3:ac = "l2";break;
+                       
+                   }
+               
+               break;
+           
+       }
+       
+       return ac;
+    }
+    
+    
+    private void eliminarObjeto(Actor ob){
+        
+        if(ob.equals(objeto1)){
+            objeto1=null;
+            
+            for(int i=0;i<cuadricula.length;i++){
+                for(int j=0;j<cuadricula.length;j++){
+                    if(cuadricula[i][j]==OBJ1){
+                        cuadricula[i][j]=LIBRE;
+                        
+                    }
+                }
+            }
+        }else{
+             objeto2=null;
+             for(int i=0;i<cuadricula.length;i++){
+                for(int j=0;j<cuadricula.length;j++){
+                    if(cuadricula[i][j]==OBJ2){
+                        cuadricula[i][j]=LIBRE;
+                        
+                    }
+                }
+            }
+            
+        }
+        
+    }
+    
+   
+    private boolean esMeta(int i, int j){
+        boolean res=false;
+        switch(opcion){
+           case 0:
+                    switch(paso){
+                        
+                        case 0: if(i==objeto1.x&&j==objeto1.y){
+                                      eliminarObjeto(objeto1);
+                                      
+                                        res=true;         
+                            
+                                   }
+                        ;break;
+                        case 1:if(i==lugar1.x&&j==lugar1.y){
+                                 cargandoObj1=false;
+                                       res=true;
+                        }
+                            ;break;
+                        case 2:if(i==objeto2.x&&j==objeto2.y){
+                                     eliminarObjeto(objeto2);
+                                     res=true;
+                         };
+                        break;
+                        case 3:if(i==lugar2.x&&j==lugar2.y){
+                                 cargandoObj2=false;
+                                     res=true;
+                         }break;
+                        
+                    }
+                   
+               break;
+           case 1:
+                    switch(paso){
+                        case 0:if(i==objeto2.x&&j==objeto2.y){
+                                   eliminarObjeto(objeto2);
+                                     res=true;
+                         };break;
+                        case 1:if(i==lugar2.x&&j==lugar2.y){
+                                   cargandoObj2=false;
+                                     res=true;
+                         };break;
+                        case 2:if(i==objeto1.x&&j==objeto1.y){
+                                    eliminarObjeto(objeto1);
+                                    
+                                     res=true;
+                         };break;
+                        case 3:if(i==lugar1.x&&j==lugar1.y){
+                                    cargandoObj1=false;
+                                     res=true;
+                         };break;
+                        
+                    }
+                    
+                    break;
+           case 2:
+                   switch(paso){
+                       
+                        case 0:if(i==objeto1.x&&j==objeto1.y){
+                                  eliminarObjeto(objeto1);
+                                     res=true;
+                         };break;
+                        case 1:if(i==objeto2.x&&j==objeto2.y){
+                                 eliminarObjeto(objeto2);
+                                     res=true;
+                         };break;
+                        case 2:if(i==lugar1.x&&j==lugar1.y){
+                                     cargandoObj1=false;
+                                     res=true;
+                         };break;
+                        case 3:if(i==lugar2.x&&j==lugar2.y){
+                                     cargandoObj2=false;
+                                     res=true;
+                         };break;
+                        
+                       
+                   }
+               
+                        break;
+           case 3:
+                   switch(paso){
+                       
+                        case 0:if(i==objeto1.x&&j==objeto1.y){
+                                   eliminarObjeto(objeto1);
+                                     res=true;
+                         };break;
+                        case 1:if(i==objeto2.x&&j==objeto2.y){
+                                  eliminarObjeto(objeto2);
+                                     res=true;
+                         }break;
+                        case 2:if(i==lugar2.x&&j==lugar2.y){
+                                      cargandoObj2=false;
+                                     res=true;
+                         };break;
+                        case 3:if(i==lugar1.x&&j==lugar1.y){
+                                   cargandoObj1=false;
+                                     res=true;
+                         };break;
+                       
+                   }
+                  
+               break;
+           case 4:
+                     switch(paso){
+                       
+                        case 0:if(i==objeto2.x&&j==objeto2.y){
+                                  eliminarObjeto(objeto2);
+                                     res=true;
+                         };break;
+                        case 1:if(i==objeto1.x&&j==objeto1.y){
+                                   eliminarObjeto(objeto1);
+                                     res=true;
+                         };break;
+                        case 2:if(i==lugar2.x&&j==lugar2.y){
+                                  cargandoObj2=false;
+                                     res=true;
+                         };break;
+                        case 3:if(i==lugar1.x&&j==lugar1.y){
+                                   cargandoObj1=false;
+                                     res=true;
+                         };break;
+                       
+                   }
+               
+               break;
+           case 5:
+                     switch(paso){
+                       
+                        case 0:if(i==objeto2.x&&j==objeto2.y){
+                                  eliminarObjeto(objeto2);
+                                     res=true;
+                         };break;
+                        case 1:if(i==objeto1.x&&j==objeto1.y){
+                                  eliminarObjeto(objeto1);
+                                     res=true;
+                         };break;
+                        case 2:if(i==lugar1.x&&j==lugar1.y){
+                                   cargandoObj1=false;
+                                     res=true;
+                         };break;
+                        case 3:if(i==lugar2.x&&j==lugar2.y){
+                                   cargandoObj2=false;
+                                     res=true;
+                         };break;
+                       
+                   }
+               
+               break;
+           
+       }
+       
+      
+      return res;
+    }
+    
+    public  void imprimir(){
+        
+          for(int i=0;i<cuadricula.length;i++){
+              for(int j=0;j<cuadricula.length;j++){
+                  
+                   System.out.print(cuadricula[i][j]+" ");
+                  
+              }
+              System.out.println("\n");
+          }
+        
+    }
+    private void calcularRutaDefinitiva(){
+          int min= Math.min(Math.min(Math.min(costoOp1,costoOp2), Math.min(costoOp3,costoOp4)), Math.min(costoOp5,costoOp6));
+         
+          if(min==costoOp1){
+              rutaDef=rutaOp1;
+              
+          }else{
+              if(min==costoOp2){
+                  rutaDef=rutaOp2;
+              }else{
+                  if(min==costoOp3){
+                      rutaDef=rutaOp3;
+                      
+                  }else{
+                      if(min==costoOp4){
+                          rutaDef=rutaOp4;
+                          
+                      }else{
+                          if(min==costoOp5){
+                              rutaDef=rutaOp5;
+                              
+                          }else{
+                              if(min==costoOp6){
+                                  rutaDef=rutaOp6;
+                                  
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+         
+    }
+    public int calcularCosto(int i, int j){
+        int costo;
+       
+        switch(cuadricula[i][j]){
+            
+            case ROBOT:costo=0;break;
+            case OBJ1:
+                      if(cargandoObj2){
+                          costo=pesoObj1+pesoObj2+1;
+                          cargandoObj1=true;
+                      }else{
+                       costo=pesoObj1+1;
+                       cargandoObj1=true;
+                      }
+                      ;break;
+                      
+            case OBJ2:
+                      if(cargandoObj1){
+                          
+                          costo=pesoObj1+pesoObj2+1;
+                          cargandoObj2=true;
+                      }else{
+                
+                           costo=pesoObj2+1;
+                           cargandoObj2=true;
+                      }
+                      ;break;
+                          
+                      
+            case LUG1:  if(cargandoObj1&&cargandoObj2){
+                                costo=pesoObj2+1;
+                                cargandoObj1=false;
+                         }else{
+                                if(cargandoObj1){
+                                    costo=1;
+                                    cargandoObj1=false;
+                                }else{
+                                    if(cargandoObj2){
+                                        costo=pesoObj2+1;
+                                        
+                                    }else{
+                                        costo=1;
+                                    }
+                                }
+                                               }
+                            ;break;
+            case LUG2:
+                      if(cargandoObj1&&cargandoObj2){
+                           costo=pesoObj1+1;
+                           cargandoObj2=false;
+                      }else{
+                           if(cargandoObj2){
+                               costo=1;
+                               cargandoObj2=false;
+                           }else{
+                               if(cargandoObj1){
+                                   costo=pesoObj1+1;
+                               }else{
+                                   costo=1;
+                               }
+                           }
+                      }
+                           ;break;
+            case LIBRE:
+                       if(cargandoObj1&&cargandoObj2){
+                           costo=pesoObj1+pesoObj2+1;
+                           
+                       }else{
+                           if(cargandoObj1){
+                               costo=pesoObj1+1;
+                           }else{
+                               if(cargandoObj2){
+                                   costo=pesoObj2+1;
+                               }else{
+                                   costo=1;
+                               }
+                           }
+                       }
+                
+                          ;break;
+            default:
+                      if(cargandoObj1&&cargandoObj2){
+                          costo=pesoObj1+pesoObj2+PENALIDAD+1;
+                      }else{
+                          if(cargandoObj1){
+                              costo=pesoObj1+PENALIDAD+1;
+                              
+                          }else{
+                              if(cargandoObj2){
+                                  costo=pesoObj2+PENALIDAD+1;
+                                  
+                              }else{
+                                  costo=PENALIDAD+1;
+                              }
+                          }
+                      }
+                
+                             ;break;
+            
+        }
+        
+        return costo;
+        
+        
+    }
+    
+  /*  private boolean objetoEncontrado(int i, int j){
+        
+        
+        if(i==objeto1.x&&j==objeto1.y){
+           // cargandoObj1=true;
+            return true;
+            
+        }else{
+            if(i==objeto2.x&&j==objeto2.y){
+             //  cargandoObj2=true; 
+               return true;
+            }
+        }
+        
+        return false;
+        
+    }*/
+    
+    private String obtenerElemento(int i, int j){
+        String ac;
+        switch(cuadricula[i][j]){
+            
+            case OBJ1:ac ="o1";break;
+            case OBJ2:ac= "o2";break;
+            case LUG1:ac ="l1";break;
+            case LUG2:ac = "l2";break;
+            default: ac=null;break;
+        }
+        return ac;
+    }
+    private boolean estorbo(int i, int j){
+       String ob1= determinarObjetivo();
+       String ob2= obtenerElemento(i,j); 
+       
+       if(ob2==null){
+           return false;
+       }else{
+           if(ob1.equals(ob2)){
+               return false;
+           }else{
+               return true;
+           }
+       }
+      
+       
+    }
+   /* private boolean lugarEncontrado(int i,int j){
+        
+        if(i==lugar1.x&&j==lugar1.y){
+            return true;
+            
+        }else{
+            if(i==lugar2.x&&j==lugar2.y){
+                return true;
+                
+            }
+        }
+        
+        return false;
+        
+    }*/
+    
+    private class BuscadorAmplitud{
+       private int fil,col,nivel=0;
+       private ArrayList<Point> rutaPaso1= new ArrayList<Point>(),rutaPaso2=new ArrayList<Point>(),rutaPaso3=new ArrayList<Point>(),rutaPaso4=new ArrayList<Point>();
+        
+     
+       
+        public ArrayList<Point> buscar(){
+            fil=robot.x;
+            col=robot.y;
+              
+            
+           do{  
+               indice=1;
+              // se declara la raiz con la posicion inicial del robot
+               arbol.add(new Nodo(new Point(fil,col),null,calcularCosto(fil,col)));
+              // System.out.println("tamano de arbol al comenzar paso "+ arbol.size());
+              // cuadricula[fil][col]=LIBRE;
+
+               coorVisitadas.add(new Point(fil,col));
+
+               expanderNodos();
+               System.out.println("objetivo encontrado :"+paso);
+               construirRutaPaso();
+               arbol.clear();
+               coorVisitadas.clear();
+               paso++;
+               if(paso==4){
+                   construirRutaOpcion();
+                   System.out.println("opcion completada: "+opcion);
+                   rutaPaso1.clear();
+                   rutaPaso2.clear();
+                   rutaPaso3.clear();
+                   rutaPaso4.clear();
+                   opcion++;
+                   //cuadricula[fil][col]=ROBOT;
+                  // imprimir();
+                   restablecerCampo();
+                   fil=robot.x;
+                   col=robot.y;
+                   
+                   System.out.println("campo restablecido ");
+                   imprimir();
+                   System.out.println("ubicacion fil robot: "+fil+" ubicacion col robot: "+col);
+                   System.out.println("ubicacion fil obj1: "+objeto1.x+" ubicacion col obj1: "+objeto1.y);
+                   System.out.println("ubicacion fil obj2: "+objeto2.x+" ubicacion col obj2: "+objeto2.y);
+                   System.out.println("ubicacion fil lug1: "+lugar1.x+" ubicacion col lug1: "+lugar1.y);
+                   System.out.println("ubicacion fil lug2: "+lugar2.x+" ubicacion col lug2: "+lugar2.y);
+                   
+                   paso=0;
+                   System.out.println("paso "+paso+", opcion "+opcion);
+                   
+               }
+               
+                                       }while(opcion<6);
+           
+                  calcularRutaDefinitiva();
+                  
+           
+                    return rutaDef;
+             
+
+        }
+        
+         public void construirRutaOpcion(){
+        
+        switch(opcion){
+            case 0:
+                  rutaPaso1.addAll(rutaPaso2);
+                  rutaPaso3.addAll(rutaPaso4);
+                  rutaPaso1.addAll(rutaPaso3);
+                  rutaOp1= rutaPaso1;
+                  costoOp1=costoPaso1+costoPaso2+costoPaso3+costoPaso4;
+                  
+            break;
+            case 1:
+                  rutaPaso1.addAll(rutaPaso2);
+                  rutaPaso3.addAll(rutaPaso4);
+                  rutaPaso1.addAll(rutaPaso3);
+                  rutaOp2= rutaPaso1;
+                  costoOp2=costoPaso1+costoPaso2+costoPaso3+costoPaso4;
+                   break;
+            case 2:
+                 rutaPaso1.addAll(rutaPaso2);
+                  rutaPaso3.addAll(rutaPaso4);
+                  rutaPaso1.addAll(rutaPaso3);
+                  rutaOp3= rutaPaso1;
+                  costoOp3=costoPaso1+costoPaso2+costoPaso3+costoPaso4;
+                break;
+            case 3:
+                  rutaPaso1.addAll(rutaPaso2);
+                  rutaPaso3.addAll(rutaPaso4);
+                  rutaPaso1.addAll(rutaPaso3);
+                  rutaOp4= rutaPaso1;
+                  costoOp4=costoPaso1+costoPaso2+costoPaso3+costoPaso4;
+                break;
+            case 4:
+                  rutaPaso1.addAll(rutaPaso2);
+                  rutaPaso3.addAll(rutaPaso4);
+                  rutaPaso1.addAll(rutaPaso3);
+                  rutaOp5= rutaPaso1;
+                   costoOp5=costoPaso1+costoPaso2+costoPaso3+costoPaso4;
+                
+                break;
+            case 5:
+                
+                  rutaPaso1.addAll(rutaPaso2);
+                  rutaPaso3.addAll(rutaPaso4);
+                  rutaPaso1.addAll(rutaPaso3);
+                  rutaOp6= rutaPaso1;
+                   costoOp6=costoPaso1+costoPaso2+costoPaso3+costoPaso4;
+                
+                break;
+            
+        }
+        
+    }
+        
+        private void construirRutaPaso(){
+             Nodo n;
+            switch(paso){
+                case 0:
+                      
+                       
+                       n= arbol.get(arbol.size()-1);
+                      rutaPaso1.add(n.obtenerEstado());
+                      costoPaso1+=n.obtenerCosto();
+                      do{
+                          if(n.obtenerPadre()==null){
+                              break;
+                          }
+                           rutaPaso1.add(n.obtenerPadre().obtenerEstado());
+                           
+                           n= n.obtenerPadre();
+                           costoPaso1+=n.obtenerCosto();
+                          
+                                           }while(n!=null);
+                           
+                          
+                       
+                    
+                    
+                             break;
+                case 1:
+                          
+                       
+                       n= arbol.get(arbol.size()-1);
+                       rutaPaso2.add(n.obtenerEstado());
+                       costoPaso2+=n.obtenerCosto();
+                      do{
+                           if(n.obtenerPadre()==null){
+                              break;
+                          }
+                           rutaPaso2.add(n.obtenerPadre().obtenerEstado());
+                           
+                           n= n.obtenerPadre();
+                           costoPaso2+=n.obtenerCosto();
+                                           }while(n!=null);
+                           
+                          
+                       
+                    
+                    
+                                        break;
+                case 2:   n= arbol.get(arbol.size()-1);
+                          rutaPaso3.add(n.obtenerEstado());
+                          costoPaso3+=n.obtenerCosto();
+                      do{
+                           if(n.obtenerPadre()==null){
+                              break;
+                          }
+                          
+                           rutaPaso3.add(n.obtenerPadre().obtenerEstado());
+                           n= n.obtenerPadre();
+                           costoPaso3+=n.obtenerCosto();
+                                           }while(n!=null);
+                           break;
+                case 3:   n= arbol.get(arbol.size()-1);
+                         rutaPaso4.add(n.obtenerEstado());
+                         costoPaso4+=n.obtenerCosto();
+                      do{
+                           if(n.obtenerPadre()==null){
+                              break;
+                          }
+                          
+                           rutaPaso4.add(n.obtenerPadre().obtenerEstado());
+                           n= n.obtenerPadre();
+                           costoPaso4+=n.obtenerCosto();
+                                           }while(n!=null);
+                           
+                    
+                    
+                    
+                    break;
+                
+            }
+            
+        }
+        
+        private void expanderNodos(){
+      
+            
+       
+        
+        do{
+//            nivel++;
+            Nodo pa;
+            if(arbol.size()==1){
+                pa=arbol.get(0);
+               // System.out.println("tamaño raiz" + arbol.size());
+            }else{
+                pa=padreActual();
+              //  System.out.println("Se instancion un padre "+ pa);
+        }
+             try{
+                fil=pa.obtenerEstado().x;
+                col=pa.obtenerEstado().y;
+             }catch(NullPointerException ex){
+                 
+                 System.err.println("Exception tamano arbol ="+arbol.size()+" valor del indice: "+indice);
+                 System.exit(1);
+             }
+            
+
+            
+                        
+                       if(esValida(fil+1,col)&&!visitada(fil+1,col)&&!estorbo(fil+1,col)){//abajo
+                              
+                           System.out.println("Movimiento hacia abajo");
+                           if(objeto1!=null){
+                               if((fil+1)==objeto1.x&&col==objeto1.y){
+                                    cargandoObj1=true;
+                                }
+                               
+                           }
+                           
+                               if(objeto2!=null){
+                                   
+                                    if((fil+1)==objeto2.x&&col==objeto2.y){
+                                            cargandoObj2=true;
+                                        }
+                                   
+                               }
+                                     
+                                       
+                                      
+                                
+                           
+                           arbol.add(new Nodo(new Point(fil+1,col),pa,calcularCosto(fil+1,col)));
+                           coorVisitadas.add(new Point(fil+1,col));
+                           if(esMeta(fil+1,col)){
+                              System.out.println("Meta abajo");
+                               fil++;
+                            
+                               break;
+                           }
+                       }
+                       if(esValida(fil,col+1)&&!visitada(fil,col+1)&&!estorbo(fil,col+1)){//derecha
+                            System.out.println("Movimiento hacia derecha");
+                           if(objeto1!=null){
+                               if(fil==objeto1.x&&(col+1)==objeto1.y){
+                                    cargandoObj1=true;
+                                }
+                               
+                           }
+                           
+                               if(objeto2!=null){
+                                   
+                                    if(fil==objeto2.x&&(col+1)==objeto2.y){
+                                            cargandoObj2=true;
+                                        }
+                                   
+                               }
+
+                           arbol.add(new Nodo(new Point(fil,col+1),pa,calcularCosto(fil,col+1)));
+                           coorVisitadas.add(new Point(fil,col+1));
+                           if(esMeta(fil,col+1)){
+                                 System.out.println("Meta derecha");
+                            
+                               col++;
+                             
+                               break;
+                           }
+
+                       }
+                        if(esValida(fil-1,col)&&!visitada(fil-1,col)&&!estorbo(fil-1,col)){//arriba
+                             System.out.println("Movimiento hacia arriba");
+                            if(objeto1!=null){
+                               if((fil-1)==objeto1.x&&col==objeto1.y){
+                                    cargandoObj1=true;
+                                }
+                               
+                           }
+                           
+                               if(objeto2!=null){
+                                   
+                                    if((fil-1)==objeto2.x&&col==objeto2.y){
+                                            cargandoObj2=true;
+                                        }
+                                   
+                               }
+                            
+
+                           arbol.add(new Nodo(new Point(fil-1,col),pa,calcularCosto(fil-1,col)));
+                           coorVisitadas.add(new Point(fil-1,col));
+                           if(esMeta(fil-1,col)){
+                                 System.out.println("Meta arriba");
+                               fil--;
+                              
+                               break;
+                           }
+
+                       }
+                        if(esValida(fil,col-1)&&!visitada(fil,col-1)&&!estorbo(fil,col-1)){//izquierda
+                             System.out.println("Movimiento hacia izquierda");
+                           if(objeto1!=null){
+                               if(fil==objeto1.x&&(col-1)==objeto1.y){
+                                    cargandoObj1=true;
+                                }
+                               
+                           }
+                           
+                               if(objeto2!=null){
+                                   
+                                    if(fil==objeto2.x&&(col-1)==objeto2.y){
+                                            cargandoObj2=true;
+                                        }
+                                   
+                               }
+
+                           arbol.add(new Nodo(new Point(fil,col-1),pa,calcularCosto(fil,col-1)));
+                           coorVisitadas.add(new Point(fil,col-1));
+                           if(esMeta(fil,col-1)){
+                                 System.out.println("Meta izquierda");
+                               col--;
+                             
+                               break;
+                           }
+
+                       }
+                        
+                   
+                                                                                            }while(true);
+        
+    }
+        
+        
+  private Point siguienteRaiz(){
+      Point p=null;
+      int i=0;
+      while(i<arbol.size()){
+          
+          if(!arbol.get(i).estaExpandido()){
+              p=arbol.get(i).obtenerEstado();
+              break;
+          }
+          
+      }
+      
+      return p;
+  }
+  private boolean visitada(int i, int j){
+      
+      return coorVisitadas.contains(new Point(i,j));
+      
+  }  
+  private Nodo padreActual(){
+     
+      Nodo p=null;
+      //System.out.println(arbol.size()+"tamaño");
+      while(indice<arbol.size()){
+          if(!(arbol.get(indice).estaExpandido())){
+              arbol.get(indice).expander(true);
+              p=arbol.get(indice);
+             // System.out.println("x");
+              break;
+          }
+          indice++;
+      }
+      
+      return p;
+  }   
+        
+    }
+    
+    
+ 
+}

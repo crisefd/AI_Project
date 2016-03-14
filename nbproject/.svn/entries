@@ -1,0 +1,56 @@
+10
+
+dir
+0
+https://proyecto-ia-13.googlecode.com/svn/trunk/AI_Project/nbproject
+https://proyecto-ia-13.googlecode.com/svn
+add
+
+
+
+
+
+has-props
+has-prop-mods
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+646957e5-a00f-6799-3a0e-c6a0d0be6920
+
+build-impl.xml
+file
+
+
+
+add
+
+genfiles.properties
+file
+
+
+
+add
+
+project.properties
+file
+
+
+
+add
+
+project.xml
+file
+
+
+
+add
+
