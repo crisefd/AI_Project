@@ -1,6 +1,10 @@
 # AI_Project
 Search algorithms for artificial intelligence
 
+Requirements.
+- Netbeans IDE
+- Java 7
+
 # Contents:
 - Breadth-first search
 - Depth-first search
