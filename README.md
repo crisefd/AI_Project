@@ -1,4 +1,4 @@
-# AI_Project
+# Sorting Robot
 Search algorithms for artificial intelligence
 
 Requirements.
